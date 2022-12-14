@@ -1,0 +1,5 @@
+ansible_user: pina
+user:
+  name: pina
+  key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+docker_dir: "/docker"

@@ -1,0 +1,53 @@
+- name: apt install basic dependencies
+  apt:
+    update_cache: yes
+    name:
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - python3
+      - python3-pip
+      - python3-bcrypt
+    state: present
+
+- name: Add docker GPG apt key
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+
+- name: Add docker official repository for Debian {{ ansible_distribution_release }}
+  apt_repository:
+    repo: deb [arch=armhf] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable
+    state: present
+
+- name: Update apt and install docker-ce
+  apt:
+    update_cache: yes
+    name: docker-ce
+    state: latest
+
+- name: Install docker python module
+  pip:
+    state: latest
+    name:
+      - docker
+      - pyyaml
+      - docker-compose
+
+- name: Add remote user to "docker" group
+  user:
+    name: "{{ user.name }}"
+    groups: "docker"
+    append: yes
+
+- name: Install docker python module
+  pip:
+    name: docker
+
+- name: Create /docker/ directory if needed
+  file:
+    path: /docker
+    state: directory
+    owner: '{{ user.name }}'
+    group: 'docker'
+    mode: 0775

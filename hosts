@@ -1,0 +1,7 @@
+[servers]
+pinaSmartHome
+
+[servers:vars]
+ansible_connection=ssh
+ansible_become=yes
+ansible_become_method=sudo
