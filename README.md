@@ -3,7 +3,13 @@
 Run the playbook:
 
 ```shell script
-ansible-playbook server-setup.yml -i hosts
+ansible-playbook system-setup.yml -i hosts
+```
+
+Only update the Docker containers:
+
+```shell script
+ansible-playbook docker-containers.yml -i hosts
 ```
 
 ## Install ansible modules
