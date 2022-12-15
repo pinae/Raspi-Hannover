@@ -1,7 +1,5 @@
 - hosts: all
   become: 'yes'
   roles:
-    - system
-    - install_docker
     - mosquitto
   tasks:

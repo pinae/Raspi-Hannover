@@ -1,0 +1,54 @@
+- name: Ensure mosquitto directory exists
+  file:
+    path: "{{ docker_dir }}/mosquitto"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "docker"
+    mode: 0775
+    force: false
+  when: service_mosquitto == "started"
+
+- name: Ensure mosquitto sub-directories exist
+  file:
+    path: "{{ item }}"
+    state: directory
+  when: service_mosquitto == "started"
+  with_items:
+    - "{{ docker_dir }}/mosquitto/config"
+    - "{{ docker_dir }}/mosquitto/data"
+    - "{{ docker_dir }}/mosquitto/log"
+
+- name: Copy mosquitto config
+  become: true
+  copy:
+    src: "mosquitto.conf"
+    dest: '{{ docker_dir }}/mosquitto/config/mosquitto.conf'
+    owner: "{{ user.name }}"
+    group: "docker"
+    mode: 0666
+  when: service_mosquitto == "started"
+
+- name: "Ensure mosquitto stack is {{ service_mosquitto }}"
+  docker_compose:
+    project_name: mosquitto
+    definition:
+      version: '3.7'
+      services:
+        mosquitto:
+          image: eclipse-mosquitto
+          container_name: mosquitto
+          restart: unless-stopped
+          ports:
+            - "1883:1883"
+            - "1884:1884"
+          volumes:
+            - "{{ docker_dir }}/hass/mosquitto/config:/mosquitto/config"
+            - "{{ docker_dir }}/hass/mosquitto/data:/mosquitto/data"
+            - "{{ docker_dir }}/hass/mosquitto/log:/mosquitto/log"
+          environment:
+            - "TZ={{ timezone }}"
+          user: "${PUID}:${PGID}"
+    state: "{{ (service_mosquitto in ['started', 'stopped', 'restarted']) | ternary('present', 'absent') }}"
+    stopped: "{{ service_mosquitto == 'stopped' }}"
+    restarted: "{{ service_mosquitto == 'restarted' }}"
+  register: mosquitto_stack
