@@ -1,0 +1,4 @@
+portainer:
+  image: "portainer/portainer-ce:latest"
+  admin_user: "admin"
+  admin_password: "letmein123456789#foobar"

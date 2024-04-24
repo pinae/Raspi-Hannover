@@ -1,0 +1,73 @@
+- name: Ensure {{ docker_dir }}/portainer exists
+  become: yes
+  file:
+    path: "{{ docker_dir }}/portainer"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "docker"
+    mode: 0775
+  when: service_portainer != "purged"
+
+- name: "Ensure portainer stack is {{ service_portainer }}"
+  docker_compose:
+    project_name: portainer
+    definition:
+      version: '2'
+      services:
+        app:
+          image: "{{ portainer.image }}"
+          container_name: "portainer"
+          restart: unless-stopped
+          environment:
+            - PUID=1000
+            - PGID=1000
+            - TZ={{ timezone }}
+          volumes:
+            - "{{ docker_dir }}/portainer:/data:rw"
+            - "/var/run/docker.sock:/var/run/docker.sock"
+          ports:
+            - 9000:9000
+          labels:
+            # general settings
+            - "traefik.enable=true"
+            - "traefik.docker.network=traefik_net"
+            - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+            # web router
+            - "traefik.http.routers.portainer_web.EntryPoints=web"
+            - "traefik.http.routers.portainer_web.rule=Host(`{{ hostname }}`) && PathPrefix(`/portainer`)"
+            - "traefik.http.routers.portainer_web.service=portainer"
+            - "traefik.http.routers.portainer_web.tls=false"
+      networks:
+        default:
+          external:
+            name: traefik_net
+    recreate: always
+    state: "{{ (service_portainer in ['started', 'stopped', 'restarted']) | ternary('present', 'absent') }}"
+    stopped: "{{ service_portainer == 'stopped' }}"
+    restarted: "{{ service_portainer == 'restarted' }}"
+    remove_images: "{{ (service_portainer == 'purged') | ternary('all', 'local') }}"
+    remove_orphans: "{{ service_portainer == 'purged' }}"
+  register: portainer_stack
+
+- name: Purge the portainer directory at {{ docker_dir }}/portainer
+  become: true
+  file:
+    path: "{{ docker_dir }}/portainer"
+    state: absent
+  when: service_portainer == "purged"
+
+
+- block:
+  - wait_for:
+      host: "{{ portainer_stack.services.app.portainer.networks.traefik_net.IPAddress }}"
+      port: 9000
+      timeout: 15
+  - name: Configure admin user password
+    uri:
+      url: "http://{{ portainer_stack.services.app.portainer.networks.traefik_net.IPAddress }}:9000/api/users/admin/init"
+      method: POST
+      return_content: true
+      body_format: json
+      body: '{ "Username":"{{ portainer.admin_user }}", "Password":"{{ portainer.admin_password }}"}'
+      status_code: 200, 409
+  when: service_portainer == "started"

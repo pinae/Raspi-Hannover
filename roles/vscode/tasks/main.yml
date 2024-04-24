@@ -1,0 +1,63 @@
+
+- name: Ensure {{ vscode.config_dir }} exists
+  file:
+    path: "{{ vscode.config_dir }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "docker"
+    mode: 0775
+  when: service_vscode != "purged"
+
+- name: "Ensure vscode stack is {{ service_vscode }}"
+  docker_compose:
+    project_name: vscode
+    definition:
+      version: "2.1"
+      services:
+        vscode:
+          image: lscr.io/linuxserver/code-server:latest
+          container_name: code-server
+          environment:
+            - PUID=0
+            - PGID=0
+            - TZ={{ timezone }}
+            - DEFAULT_WORKSPACE=/docker_dir
+            - PROXY_DOMAIN=vscode.qwlouse.de
+#            - PASSWORD=password #optional
+#            - HASHED_PASSWORD= #optional
+            - SUDO_PASSWORD=password #optional
+#            - SUDO_PASSWORD_HASH= #optional
+          volumes:
+            - "{{ vscode.config_dir }}:/config"
+            - "{{ docker_dir }}:/docker_dir"
+          restart: unless-stopped
+          labels:
+            # general settings
+            - "traefik.enable=true"
+            - "traefik.docker.network=traefik_net"
+            - "traefik.http.services.vscode.loadbalancer.server.port=8443"
+            # web router
+            - "traefik.http.routers.vscode_web.EntryPoints=web-secure"
+            - "traefik.http.routers.vscode_web.rule=Host(`vscode.{{ main_domain }}`)"
+            - "traefik.http.routers.vscode_web.middlewares=internal-ips-only@file"
+            - "traefik.http.routers.vscode_web.service=vscode"
+            - "traefik.http.routers.vscode_web.tls=true"
+            - "traefik.http.routers.vscode_web.tls.certresolver=default"
+      networks:
+        default:
+          external:
+            name: traefik_net
+    recreate: always
+    state: "{{ (service_vscode in ['started', 'stopped', 'restarted']) | ternary('present', 'absent') }}"
+    stopped: "{{ service_vscode == 'stopped' }}"
+    restarted: "{{ service_vscode == 'restarted' }}"
+    remove_images: "{{ (service_vscode == 'purged') | ternary('all', 'local') }}"
+    remove_orphans: "{{ service_vscode == 'purged' }}"
+  register: vscode_stack
+
+- name: Purge the vscode directory at {{ vscode.config_dir }}
+  become: true
+  file:
+    path: "{{ vscode.config_dir }}"
+    state: absent
+  when: service_vscode == "purged"

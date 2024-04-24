@@ -1,0 +1,38 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# configure the reverse proxy
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - {{ hass_reverse_proxy_ip }}
+
+# use Postgres Database
+recorder:
+  db_url: "postgresql://postgres:{{ hass_postgres_password }}@sql/hass"
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+logger:
+  default: info
+
+mqtt:
+  broker: mosquitto
+  port: 1883
+  client_id: hass
+
+panel_iframe:
+  vscode:
+    title: "VSCode"
+    icon: mdi:microsoft-visual-studio-code
+    url: "https://vscode.qwlouse.de"
+  nodered:
+    title: "NodeRED"
+    icon: si:nodered
+    url: "https://nodered.qwlouse.de"
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml

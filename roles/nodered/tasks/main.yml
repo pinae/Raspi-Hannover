@@ -1,0 +1,53 @@
+- name: Ensure node_red directory exists
+  file:
+    path: "{{ docker_dir }}/node_red"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "docker"
+    mode: 0775
+    force: false
+  when: service_nodered == "started"
+
+- name: "Ensure nodered stack is {{ service_nodered }}"
+  docker_compose:
+    project_name: nodered
+    definition:
+      version: '3.7'
+      services:
+        nodered:
+          container_name: nodered
+          image: nodered/node-red
+          restart: unless-stopped
+          ports:
+            - "1880:1880"
+          volumes:
+            - "{{ docker_dir }}//node_red:/data"
+          depends_on:
+            - mosquitto
+          environment:
+            - "TZ={{ timezone }}"
+          user: "${PUID}:${PGID}"
+          labels:
+            - "traefik.enable=true"
+            - "traefik.http.services.nodered.loadbalancer.server.port=1880"
+            - "traefik.http.routers.nodered_web.EntryPoints=web"
+            - "traefik.http.routers.nodered_web.rule=Host(`nodered.{{ main_domain }}`)"
+            - "traefik.http.routers.nodered_web.middlewares=internal-ips-only@file"
+            - "traefik.http.routers.nodered_web.service=nodered"
+            - "traefik.http.routers.nodered_web.tls=false"
+            - "traefik.http.routers.nodered_web.tls.certresolver=default"
+      networks:
+        default:
+          external:
+            name: traefik_net
+      state: "{{ (service_nodered in ['started', 'stopped', 'restarted']) | ternary('present', 'absent') }}"
+      stopped: "{{ service_nodered == 'stopped' }}"
+      restarted: "{{ service_nodered == 'restarted' }}"
+      register: nodered_stack
+
+- name: Purge the node_red directory at {{ docker_dir }}/service_nodered
+  become: true
+  file:
+    path: "{{ docker_dir }}/node_red"
+    state: absent
+  when: service_nodered == "purged"

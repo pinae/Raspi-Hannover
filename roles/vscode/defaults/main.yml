@@ -1,0 +1,2 @@
+vscode:
+  config_dir: "{{ docker_dir }}/vscode"

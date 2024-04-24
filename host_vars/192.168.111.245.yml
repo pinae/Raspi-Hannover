@@ -1,8 +1,9 @@
 ansible_user: pina
-user:
+admin:
   name: pina
   key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
-docker_dir: "/docker"
+  email: "pina@pinae.net"
 locale: de_DE.UTF-8
 timezone: Europe/Berlin
-service_mosquitto: started
+docker_dir: "/docker"
+hostname: pinaSmartHome

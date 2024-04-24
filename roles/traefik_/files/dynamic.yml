@@ -1,0 +1,12 @@
+http:
+  services:
+    redirect-all:
+      loadBalancer:
+        servers:
+         - url: ""
+
+  middlewares:
+    internal-ips-only:
+      ipWhiteList:
+        sourceRange:
+          - "192.168.178.0/24"

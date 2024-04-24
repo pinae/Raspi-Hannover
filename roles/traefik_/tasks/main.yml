@@ -1,0 +1,71 @@
+- name: Create traefik directory if needed
+  become: true
+  file:
+    path: '{{ docker_dir }}/traefik'
+    state: directory
+    owner: '{{ user.name }}'
+    group: 'docker'
+    mode: 0775
+  when: service_traefik != 'purged'
+
+- name: Copy dynamic.yml
+  copy:
+    src: dynamic.yml
+    dest: '{{ docker_dir }}/traefik/dynamic.yml'
+    owner: '{{ user.name }}'
+    group: 'docker'
+  when: service_traefik != 'purged'
+
+- name: Copy static.yml
+  template:
+    src: static.yml.j2
+    dest: '{{ docker_dir }}/traefik/static.yml'
+    owner: '{{ user.name }}'
+    group: 'docker'
+  when: service_traefik != 'purged'
+
+- name: "start Traefik"
+  docker_compose:
+    project_name: traefik
+    definition:
+      version: '3.7'
+      services:
+        traefik:
+          container_name: "traefik"
+          image: "traefik"
+          restart: always
+          ports:
+            - "80:80"
+            - "443:443"
+            - "8080:8080"
+          volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock:rw"
+            - "{{ docker_dir }}/traefik/static.yml:/etc/traefik/traefik.yml:ro"
+            - "{{ docker_dir }}/traefik/dynamic.yml:/etc/traefik/dynamic/dynamic.yml:ro"
+          labels:
+            # general settings
+            - "traefik.enable=true"
+            - "traefik.docker.network=traefik_net"
+            - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+            # local router
+            - "traefik.http.routers.traefik_local.EntryPoints=web"
+            - "traefik.http.routers.traefik_local.rule=PathPrefix(`/traefik`)"
+            - "traefik.http.routers.traefik_local.service=traefik"
+      networks:
+        default:
+          name: traefik_net
+    recreate: always
+    state: "{{ (service_traefik in ['started', 'stopped', 'restarted']) | ternary('present', 'absent') }}"
+    stopped: "{{ service_traefik == 'stopped' }}"
+    restarted: "{{ service_traefik == 'restarted' }}"
+    remove_images: "{{ (service_traefik == 'purged') | ternary('all', 'local') }}"
+    remove_orphans: "{{ service_traefik == 'purged' }}"
+  register: traefik_docker
+
+
+- name: Purge the traefik directory at {{ docker_dir }}
+  become: true
+  file:
+    path: "{{ docker_dir }}/traefik"
+    state: absent
+  when: service_traefik == "purged"
