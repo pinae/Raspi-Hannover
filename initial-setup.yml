@@ -1,4 +1,4 @@
-- hosts: server
+- hosts: servers
   become: true
   vars:
     pip_package: python3-pip
