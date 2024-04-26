@@ -42,9 +42,9 @@
             - "1883:1883"
             - "1884:1884"
           volumes:
-            - "{{ docker_dir }}/hass/mosquitto/config:/mosquitto/config"
-            - "{{ docker_dir }}/hass/mosquitto/data:/mosquitto/data"
-            - "{{ docker_dir }}/hass/mosquitto/log:/mosquitto/log"
+            - "{{ docker_dir }}/mosquitto/config:/mosquitto/config"
+            - "{{ docker_dir }}/mosquitto/data:/mosquitto/data:rw"
+            - "{{ docker_dir }}/mosquitto/log:/mosquitto/log:rw"
           environment:
             - "TZ={{ timezone }}"
           user: "${PUID}:${PGID}"

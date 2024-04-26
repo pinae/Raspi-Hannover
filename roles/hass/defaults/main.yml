@@ -1,2 +1,2 @@
 hass_postgres_password: "guraVdCThZ830fqR"
-hass_reverse_proxy_ip: "192.168.111.216/24"
+hass_reverse_proxy_ip: "172.19.0.0/24"

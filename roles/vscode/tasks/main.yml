@@ -22,7 +22,7 @@
             - PGID=0
             - TZ={{ timezone }}
             - DEFAULT_WORKSPACE=/docker_dir
-            - PROXY_DOMAIN=vscode.qwlouse.de
+#            - PROXY_DOMAIN=vscode.pinyto.de
 #            - PASSWORD=password #optional
 #            - HASHED_PASSWORD= #optional
             - SUDO_PASSWORD=password #optional
@@ -31,18 +31,19 @@
             - "{{ vscode.config_dir }}:/config"
             - "{{ docker_dir }}:/docker_dir"
           restart: unless-stopped
+          ports:
+            - 8443:8443
           labels:
             # general settings
             - "traefik.enable=true"
             - "traefik.docker.network=traefik_net"
             - "traefik.http.services.vscode.loadbalancer.server.port=8443"
             # web router
-            - "traefik.http.routers.vscode_web.EntryPoints=web-secure"
-            - "traefik.http.routers.vscode_web.rule=Host(`vscode.{{ main_domain }}`)"
+            - "traefik.http.routers.vscode_web.EntryPoints=web"
+            - "traefik.http.routers.vscode_web.rule=Host(`{{ hostname }}`) && PathPrefix(`/vscode`)"
             - "traefik.http.routers.vscode_web.middlewares=internal-ips-only@file"
             - "traefik.http.routers.vscode_web.service=vscode"
-            - "traefik.http.routers.vscode_web.tls=true"
-            - "traefik.http.routers.vscode_web.tls.certresolver=default"
+            - "traefik.http.routers.vscode_web.tls=false"
       networks:
         default:
           external:

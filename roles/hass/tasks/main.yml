@@ -1,0 +1,94 @@
+- name: Ensure homeassistant directories exists
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "docker"
+    mode: 0775
+    force: false
+  when: service_hass == "started"
+  with_items:
+    - "{{ docker_dir }}/hass"
+    - "{{ docker_dir }}/hass/config"
+    - "{{ docker_dir }}/hass/postgres"
+
+- name: provide initial configuration.yml
+  become: true
+  template:
+    src: configuration.yaml.j2
+    dest: "{{ docker_dir }}/hass/config/configuration.yaml"
+    force: yes
+    mode: 0666
+  when: service_hass == "started"
+
+- name: Copy initial hass configs
+  become: true
+  copy:
+    src: "{{ item }}"
+    dest: '{{ docker_dir }}/hass/config/{{ item }}'
+    force: no
+    owner: 'root'
+    group: 'root'
+    mode: 0666
+  with_items:
+    - "automations.yaml"
+    - "scenes.yaml"
+    - "scripts.yaml"
+    - "secrets.yaml"
+  when: service_hass == "started"
+
+- name: "Ensure homeassistant stack is {{ service_hass }}"
+  docker_compose:
+    project_name: homeassistant
+    definition:
+      version: '3.7'
+      services:
+        hass:
+          image: "ghcr.io/home-assistant/home-assistant:stable"
+          container_name: "hass"
+          restart: unless-stopped
+          depends_on:
+            - sql
+          environment:
+            - "TZ={{ timezone }}"
+          volumes:
+            - "{{ docker_dir }}/hass/config:/config:rw"
+            - "/var/run/docker.sock:/var/run/docker.sock"
+          ports:
+            - 8123:8123
+          labels:
+            - "traefik.enable=true"
+            - "traefik.http.services.homeassistant.loadbalancer.server.port=8123"
+            # web router
+            - "traefik.http.routers.hass_web.EntryPoints=web"
+            - "traefik.http.routers.hass_web.rule=Host(`{{ hostname }}`) && PathPrefix(`/hass`)"
+            - "traefik.http.routers.hass_web.service=homeassistant"
+            - "traefik.http.routers.hass_web.tls=false"
+        sql:
+          image: postgres:bullseye
+          container_name: hass-postgress
+          restart: unless-stopped
+          volumes:
+            - "{{ docker_dir }}/hass/postgres/data:/var/lib/postgresql/data"
+            - "{{ docker_dir }}/hass/postgres/etc:/etc/postgresql"
+            - "{{ docker_dir }}/hass/postgres/log:/var/log/postgresql"
+          environment:
+            - "TZ={{ timezone }}"
+            - "POSTGRES_USER=postgres"
+            - "POSTGRES_PASSWORD={{ hass_postgres_password }}"
+            - "POSTGRES_DB=hass"
+      networks:
+        default:
+          external:
+            name: traefik_net
+    state: "{{ (service_hass in ['started', 'stopped', 'restarted']) | ternary('present', 'absent') }}"
+    stopped: "{{ service_hass == 'stopped' }}"
+    restarted: "{{ service_hass == 'restarted' }}"
+  register: hass_stack
+
+- name: Purge the homeassistant directory at {{ docker_dir }}/hass
+  become: true
+  file:
+    path: "{{ docker_dir }}/hass"
+    state: absent
+  when: service_hass == "purged"

@@ -17,13 +17,13 @@
         nodered:
           container_name: nodered
           image: nodered/node-red
+          security_opt:
+            - seccomp:unconfined
           restart: unless-stopped
           ports:
             - "1880:1880"
           volumes:
-            - "{{ docker_dir }}//node_red:/data"
-          depends_on:
-            - mosquitto
+            - "{{ docker_dir }}/node_red:/data"
           environment:
             - "TZ={{ timezone }}"
           user: "${PUID}:${PGID}"
@@ -31,21 +31,22 @@
             - "traefik.enable=true"
             - "traefik.http.services.nodered.loadbalancer.server.port=1880"
             - "traefik.http.routers.nodered_web.EntryPoints=web"
-            - "traefik.http.routers.nodered_web.rule=Host(`nodered.{{ main_domain }}`)"
-            - "traefik.http.routers.nodered_web.middlewares=internal-ips-only@file"
+            - "traefik.http.routers.nodered_web.rule=Host(`{{ hostname }}`) && PathPrefix(`/nodered`)"
+            - "traefik.http.middlewares.myapp-stripprefix.stripprefix.prefixes=/nodered"
+            - "traefik.http.routers.nodered_web.middlewares=myapp-stripprefix@docker"
             - "traefik.http.routers.nodered_web.service=nodered"
             - "traefik.http.routers.nodered_web.tls=false"
-            - "traefik.http.routers.nodered_web.tls.certresolver=default"
       networks:
         default:
           external:
             name: traefik_net
-      state: "{{ (service_nodered in ['started', 'stopped', 'restarted']) | ternary('present', 'absent') }}"
-      stopped: "{{ service_nodered == 'stopped' }}"
-      restarted: "{{ service_nodered == 'restarted' }}"
-      register: nodered_stack
+    state: "{{ (service_nodered in ['started', 'stopped', 'restarted']) | ternary('present', 'absent') }}"
+    stopped: "{{ service_nodered == 'stopped' }}"
+    restarted: "{{ service_nodered == 'restarted' }}"
+  register: nodered_stack
+  when: service_nodered == "started"
 
-- name: Purge the node_red directory at {{ docker_dir }}/service_nodered
+- name: Purge the node_red directory at {{ docker_dir }}
   become: true
   file:
     path: "{{ docker_dir }}/node_red"

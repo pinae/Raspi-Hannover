@@ -20,19 +20,19 @@
     repo: deb [arch=armhf] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable
     state: present
 
-- name: Update apt and install docker-ce
-  apt:
-    update_cache: yes
-    name: docker-ce
-    state: latest
+#- name: Update apt and install docker-ce
+#  apt:
+#    update_cache: yes
+#    name: docker-ce
+#    state: latest
 
-- name: Install docker python module
-  pip:
-    state: latest
-    name:
-      - docker
-      - pyyaml
-      - docker-compose
+#- name: Install docker python module
+#  pip:
+#    state: latest
+#    name:
+#      - docker
+#      - pyyaml
+#      - docker-compose
 
 - name: Add remote user to "docker" group
   user:
@@ -40,9 +40,9 @@
     groups: "docker"
     append: yes
 
-- name: Install docker python module
-  pip:
-    name: docker
+#- name: Install docker python module
+#  pip:
+#    name: docker
 
 - name: Create /docker/ directory if needed
   file:
