@@ -1,0 +1,6 @@
+- hosts: servers
+  become: true
+  roles:
+    - role: nodered
+      vars:
+        service_cfg: "{{ nodered }}"

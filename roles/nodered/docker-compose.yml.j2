@@ -1,0 +1,16 @@
+services:
+  nodered:
+    container_name: nodered
+    image: nodered/node-red
+    security_opt:
+      - seccomp:unconfined
+    restart: unless-stopped
+    ports:
+      - "1880:1880"
+    environment:
+      - "TZ={{ timezone }}"
+    user: "${PUID}:${PGID}"
+    volumes:
+      - "{{ service_cfg.directory }}:/data"
+    labels: *base_labels
+    networks: *base_networks

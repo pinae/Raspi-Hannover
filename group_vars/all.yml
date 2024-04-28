@@ -5,14 +5,16 @@ traefik:
   name: traefik
   version: "v2.11.2"
   directory: "{{ docker_dir }}/traefik"
-  domain: "traefik.pinasmarthome.fritz.box"
+  domain: "pinasmarthome.fritz.box"
+  url_path_prefix: "/traefik"
   http_basic_users: "admin:$$apr1$$C7q4MwxW$$3DbS4TuKkgnkPvS8H3vZG1"  # User: admin, Password: nQ9i6yK9ORnMySE2AG26eJNSq
 
 portainer:
   name: portainer
   admin_user: "admin"
   directory: "{{ docker_dir }}/portainer"
-  domain: "portainer.pinasmarthome.fritz.box"
+  domain: "pinasmarthome.fritz.box"
+  url_path_prefix: "/portainer"
   admin_password: "6sjGtgBr1EkX1EARfkxovKh5p"
 
 watchtower:
@@ -29,3 +31,9 @@ autoheal:
     enabled: false
     token: ""
     channel_id: ""
+
+nodered:
+  name: nodered
+  directory: "{{ docker_dir }}/node_red"
+  domain: "pinasmarthome.fritz.box"
+  url_path_prefix: "/nodered"
