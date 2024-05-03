@@ -6,7 +6,9 @@ traefik:
   version: "v2.11.2"
   directory: "{{ docker_dir }}/traefik"
   domain: "pinasmarthome.fritz.box"
-  url_path_prefix: "/traefik"
+  #url_path_prefix: "/traefik"
+  #external: false
+  #router_entry_point: "web"
   http_basic_users: "admin:$$apr1$$C7q4MwxW$$3DbS4TuKkgnkPvS8H3vZG1"  # User: admin, Password: nQ9i6yK9ORnMySE2AG26eJNSq
 
 portainer:
