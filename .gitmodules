@@ -1,23 +1,23 @@
 [submodule "roles/compose_hull"]
 	path = roles/compose_hull
-	url = git@github.com:ct-Open-Source/telerec-t-compose-hull.git
+	url = git@github.com:pinae/telerec-t-compose-hull.git
 	branch = main
 [submodule "roles/traefik"]
 	path = roles/traefik
-	url = git@github.com:ct-Open-Source/telerec-t-traefik.git
+	url = git@github.com:pinae/telerec-t-traefik.git
 	branch = main
 [submodule "roles/portainer"]
 	path = roles/portainer
-	url = git@github.com:ct-Open-Source/telerec-t-portainer.git
+	url = git@github.com:pinae/telerec-t-portainer.git
 	branch = main
 [submodule "roles/watchtower"]
 	path = roles/watchtower
-	url = git@github.com:ct-Open-Source/telerec-t-watchtower.git
+	url = git@github.com:pinae/telerec-t-watchtower.git
     branch = main
 [submodule "roles/autoheal"]
 	path = roles/autoheal
-	url = git@github.com:ct-Open-Source/telerec-t-autoheal.git
+	url = git@github.com:pinae/telerec-t-autoheal.git
 	branch = main
 [submodule "roles/system"]
 	path = roles/system
-	url = git@github.com:ct-Open-Source/telerec-t-debian.git
+	url = git@github.com:pinae/telerec-t-debian.git

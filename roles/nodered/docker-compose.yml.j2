@@ -1,6 +1,6 @@
 services:
   nodered:
-    container_name: nodered
+    container_name: "{{ service_cfg.name }}"
     image: nodered/node-red
     security_opt:
       - seccomp:unconfined
@@ -9,8 +9,7 @@ services:
       - "1880:1880"
     environment:
       - "TZ={{ timezone }}"
-    user: "${PUID}:${PGID}"
+    #user: "${PUID}:${PGID}"
     volumes:
       - "{{ service_cfg.directory }}:/data"
     labels: *base_labels
-    networks: *base_networks
