@@ -21,3 +21,8 @@
 [submodule "roles/system"]
 	path = roles/system
 	url = git@github.com:pinae/telerec-t-debian.git
+	branch = main
+[submodule "roles/semaphore"]
+	path = roles/semaphore
+	url = git@github.com:pinae/telerec-t-semaphore.git
+	branch = main
