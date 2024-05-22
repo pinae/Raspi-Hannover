@@ -10,6 +10,25 @@ traefik:
   #external: false
   #router_entry_point: "web"
   http_basic_users: "admin:$$apr1$$C7q4MwxW$$3DbS4TuKkgnkPvS8H3vZG1"  # User: admin, Password: nQ9i6yK9ORnMySE2AG26eJNSq
+  internal_ip_ranges:
+    - "192.168.0.0/16"
+    - "172.16.0.0/16"
+    - "172.17.0.0/16"
+    - "172.18.0.0/16"
+    - "172.19.0.0/16"
+    - "172.20.0.0/16"
+    - "172.21.0.0/16"
+    - "172.22.0.0/16"
+    - "172.23.0.0/16"
+    - "172.24.0.0/16"
+    - "172.25.0.0/16"
+    - "172.26.0.0/16"
+    - "172.27.0.0/16"
+    - "172.28.0.0/16"
+    - "172.29.0.0/16"
+    - "172.30.0.0/16"
+    - "172.31.0.0/16"
+    - "10.0.0.0/8"
 
 portainer:
   name: portainer
@@ -18,6 +37,7 @@ portainer:
   domain: "pinasmarthome.fritz.box"
   url_path_prefix: "/portainer"
   admin_password: "6sjGtgBr1EkX1EARfkxovKh5p"
+  external: false
 
 watchtower:
   name: watchtower
@@ -39,3 +59,14 @@ nodered:
   directory: "{{ docker_dir }}/node_red"
   domain: "pinasmarthome.fritz.box"
   url_path_prefix: "/nodered"
+  external: false
+
+semaphore:
+  name: semaphore
+  directory: "{{ docker_dir }}/semaphore"
+  domain: "pinasmarthome.fritz.box"
+  url_path_prefix: "/semaphore"
+  external: false
+  postgres_password: "IMFnjzu15kwU08oURTRveRfjZi"
+  admin_password: "0NveH1cNxqRAlSDd"
+  access_key_encryption: "pikL2cB9FXEA0DBQly43i184wC1aSct+/kg2fxM99wY="  # Generated with: head -c32 /dev/urandom | base64
