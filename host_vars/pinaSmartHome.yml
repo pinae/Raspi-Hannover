@@ -6,4 +6,5 @@ admin:
 locale: de_DE.UTF-8
 timezone: Europe/Berlin
 docker_dir: "/docker"
+data_dir: "/data"
 hostname: pinaSmartHome

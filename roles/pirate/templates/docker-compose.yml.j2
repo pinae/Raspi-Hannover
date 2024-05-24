@@ -1,0 +1,310 @@
+services:
+  vpn:
+    container_name: vpn
+    image: "ghcr.io/linuxserver/wireguard:{{ service_cfg.vpn.version }}"
+    restart: unless-stopped
+    healthcheck:
+      test: "ping -c 1 www.google.com || exit 1"
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      PUID: "{{ PUID }}"
+      PGID: "{{ PGID }}"
+      TZ: "{{ timezone }}"
+    volumes:
+      - "{{ service_cfg.directory }}/vpn:/config"
+      - /lib/modules:/lib/modules
+    dns:
+      - 8.8.8.8
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      #- net.ipv6.conf.default.disable_ipv6=1
+    labels:
+{% if service_cfg.autoheal is defined and service_cfg.autoheal == true %}
+      - "autoheal=true"
+{% endif %}
+      - "com.centurylinklabs.watchtower.enable=false"
+    #networks:
+    #  default:
+    #    aliases:
+    #      - vpn
+    #      - prowlarr
+    #      - radarr
+    #      - sonarr
+    #      - lidarr
+    #      - bazarr
+    #      - transmission
+
+  prowlarr:
+    container_name: prowlarr
+    image: "ghcr.io/linuxserver/prowlarr:{{ service_cfg.prowlarr.version }}"
+    restart: unless-stopped
+    network_mode: service:vpn
+    healthcheck:
+      test: "(curl --fail http://localhost:9696 && ping -c 1 www.google.com) || exit 1"
+    depends_on:
+      vpn:
+        condition: service_healthy
+    environment:
+      PUID: "{{ PUID }}"
+      PGID: "{{ PGID }}"
+      TZ: "{{ timezone }}"
+    volumes:
+      - "{{ service_cfg.directory }}/prowlarr:/config"
+    labels:
+{% if service_cfg.autoheal is defined and service_cfg.autoheal == true %}
+      - "autoheal=true"
+{% endif %}
+      - "traefik.enable=true"
+      - "traefik.http.services.prowlarr.loadbalancer.server.port=9696"
+      - "traefik.http.routers.prowlarr_web.EntryPoints=web-secure"
+      - "traefik.http.routers.prowlarr_web.rule={{ prowlarr_web_rule }}"
+      #- "traefik.http.routers.prowlarr_web.middlewares=chain-authelia@file"
+{% if service_cfg.external is not defined or service_cfg.external == false %}
+      - "traefik.http.routers.prowlarr_web.middlewares=internal-ips-only@file"
+{% endif %}
+      - "traefik.http.routers.prowlarr_web.service=prowlarr"
+      - "traefik.http.routers.prowlarr_web.tls=true"
+      - "traefik.http.routers.prowlarr_web.tls.certresolver=default"
+{% if service_cfg.watchtower is defined and service_cfg.watchtower == true %}
+      - "com.centurylinklabs.watchtower.enable=true"
+{% endif %}
+
+  radarr:
+    container_name: radarr
+    image: "ghcr.io/linuxserver/radarr:{{ service_cfg.radarr.version }}"
+    restart: unless-stopped
+    network_mode: service:vpn
+    healthcheck:
+      test: "(curl --fail http://localhost:7878 && ping -c 1 www.google.com) || exit 1"
+    depends_on:
+      vpn:
+        condition: service_healthy
+    environment:
+      PUID: "{{ PUID }}"
+      PGID: "{{ PGID }}"
+      TZ: "{{ timezone }}"
+    volumes:
+      - "{{ service_cfg.directory }}/radarr:/config"
+      - "{{ service_cfg.downloads_dir }}:/downloads"
+      - "{{ service_cfg.movies_dir }}:/movies"
+    labels:
+{% if service_cfg.autoheal is defined and service_cfg.autoheal == true %}
+      - "autoheal=true"
+{% endif %}
+      - "traefik.enable=true"
+      - "traefik.http.services.radarr.loadbalancer.server.port=7878"
+      - "traefik.http.routers.radarr_web.EntryPoints=web-secure"
+      - "traefik.http.routers.radarr_web.rule={{ radarr_web_rule }}"
+#      - "traefik.http.routers.radarr_web.middlewares=chain-authelia@file"
+{% if service_cfg.external is not defined or service_cfg.external == false %}
+      - "traefik.http.routers.radarr_web.middlewares=internal-ips-only@file"
+{% endif %}
+      - "traefik.http.routers.radarr_web.service=radarr"
+      - "traefik.http.routers.radarr_web.tls=true"
+      - "traefik.http.routers.radarr_web.tls.certresolver=default"
+{% if service_cfg.watchtower is defined and service_cfg.watchtower == true %}
+      - "com.centurylinklabs.watchtower.enable=true"
+{% endif %}
+
+  sonarr:
+    container_name: sonarr
+    image: "ghcr.io/linuxserver/sonarr:{{ service_cfg.sonarr.version }}"
+    restart: unless-stopped
+    network_mode: service:vpn
+    healthcheck:
+      test: "(curl --fail http://localhost:8989 && curl --fail https://www.google.com/robots.txt) || exit 1"
+    depends_on:
+      vpn:
+        condition: service_healthy
+    environment:
+      PUID: "{{ PUID }}"
+      PGID: "{{ PGID }}"
+      TZ: "{{ timezone }}"
+    volumes:
+      - "{{ service_cfg.directory }}/sonarr:/config"
+      - "{{ service_cfg.downloads_dir }}:/downloads"
+      - "{{ service_cfg.tvseries_dir }}:/tv"
+    labels:
+{% if service_cfg.autoheal is defined and service_cfg.autoheal == true %}
+      - "autoheal=true"
+{% endif %}
+      - "traefik.enable=true"
+      - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
+      - "traefik.http.routers.sonarr_web.EntryPoints=web-secure"
+      - "traefik.http.routers.sonarr_web.rule={{ sonarr_web_rule }}"
+#      - "traefik.http.routers.sonarr_web.middlewares=chain-authelia@file"
+{% if service_cfg.external is not defined or service_cfg.external == false %}
+      - "traefik.http.routers.sonarr_web.middlewares=internal-ips-only@file"
+{% endif %}
+      - "traefik.http.routers.sonarr_web.service=sonarr"
+      - "traefik.http.routers.sonarr_web.tls=true"
+      - "traefik.http.routers.sonarr_web.tls.certresolver=default"
+{% if service_cfg.watchtower is defined and service_cfg.watchtower == true %}
+      - "com.centurylinklabs.watchtower.enable=true"
+{% endif %}
+
+  lidarr:
+    container_name: lidarr
+    image: "ghcr.io/linuxserver/lidarr:{{ service_cfg.lidarr.version }}"
+    restart: unless-stopped
+    network_mode: service:vpn
+    healthcheck:
+      test: "(curl --fail http://localhost:8686 && ping -c 1 www.google.com) || exit 1"
+    depends_on:
+      vpn:
+        condition: service_healthy
+    environment:
+      PUID: "{{ PUID }}"
+      PGID: "{{ PGID }}"
+      TZ: "{{ timezone }}"
+    volumes:
+      - "{{ service_cfg.directory }}/lidarr:/config"
+      - "{{ service_cfg.downloads_dir }}:/downloads"
+      - "{{ service_cfg.music_dir }}:/music"
+    labels:
+{% if service_cfg.autoheal is defined and service_cfg.autoheal == true %}
+      - "autoheal=true"
+{% endif %}
+      - "traefik.enable=true"
+      - "traefik.http.services.lidarr.loadbalancer.server.port=8686"
+      - "traefik.http.routers.lidarr_web.EntryPoints=web-secure"
+      - "traefik.http.routers.lidarr_web.rule={{ lidarr_web_rule }}"
+#      - "traefik.http.routers.lidarr_web.middlewares=chain-authelia@file"
+{% if service_cfg.lidarr.url_path_prefix is defined and service_cfg.lidarr.url_path_prefix|length %}
+      - "traefik.http.middlewares.lidarr_stripprefix.stripprefix.prefixes={{ service_cfg.lidarr.url_path_prefix }}"
+{% if service_cfg.external is not defined or service_cfg.external == false %}
+      - "traefik.http.routers.lidarr_web.middlewares=internal-ips-only@file,lidarr_stripprefix"
+{% else %}
+      - "traefik.http.routers.lidarr_web.middlewares=lidarr_stripprefix"
+{% endif %}
+{% else %}
+{% if service_cfg.external is not defined or service_cfg.external == false %}
+      - "traefik.http.routers.lidarr_web.middlewares=internal-ips-only@file"
+{% endif %}
+{% endif %}
+      - "traefik.http.routers.lidarr_web.service=lidarr"
+      - "traefik.http.routers.lidarr_web.tls=true"
+      - "traefik.http.routers.lidarr_web.tls.certresolver=default"
+{% if service_cfg.watchtower is defined and service_cfg.watchtower == true %}
+      - "com.centurylinklabs.watchtower.enable=true"
+{% endif %}
+
+  bazarr:
+    container_name: bazarr
+    image: "ghcr.io/linuxserver/bazarr:{{ service_cfg.bazarr.version }}"
+    restart: unless-stopped
+    network_mode: service:vpn
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 1G
+    healthcheck:
+      test: "(curl --fail http://localhost:6767 && ping -c 1 www.google.com) || exit 1"
+    depends_on:
+      vpn:
+        condition: service_healthy
+    environment:
+      PUID: "{{ PUID }}"
+      PGID: "{{ PGID }}"
+      TZ: "{{ timezone }}"
+    volumes:
+      - "{{ service_cfg.directory }}/bazarr:/config"
+      - "{{ service_cfg.tvseries_dir }}:/tv"
+      - "{{ service_cfg.movies_dir }}:/movies"
+    labels:
+{% if service_cfg.autoheal is defined and service_cfg.autoheal == true %}
+      - "autoheal=true"
+{% endif %}
+      - "traefik.enable=true"
+      - "traefik.http.services.bazarr.loadbalancer.server.port=6767"
+      - "traefik.http.routers.bazarr_web.EntryPoints=web-secure"
+      - "traefik.http.routers.bazarr_web.rule={{ bazarr_web_rule }}"
+#      - "traefik.http.routers.bazarr_web.middlewares=chain-authelia@file"
+{% if service_cfg.external is not defined or service_cfg.external == false %}
+      - "traefik.http.routers.bazarr_web.middlewares=internal-ips-only@file"
+{% endif %}
+      - "traefik.http.routers.bazarr_web.service=bazarr"
+      - "traefik.http.routers.bazarr_web.tls=true"
+      - "traefik.http.routers.bazarr_web.tls.certresolver=default"
+{% if service_cfg.watchtower is defined and service_cfg.watchtower == true %}
+      - "com.centurylinklabs.watchtower.enable=true"
+{% endif %}
+
+  readarr:
+    image: "lscr.io/linuxserver/readarr:{{ service_cfg.readarr.version }}"
+    container_name: readarr
+    restart: unless-stopped
+    network_mode: service:vpn
+    environment:
+      PUID: "{{ PUID }}"
+      PGID: "{{ PGID }}"
+      TZ: "{{ timezone }}"
+    volumes:
+      - "{{ service_cfg.directory }}/readarr:/config"
+      - "{{ service_cfg.audiobooks_dir }}:/books" #optional
+      - "{{ service_cfg.downloads_dir }}:/downloads" #optional
+    labels:
+{% if service_cfg.autoheal is defined and service_cfg.autoheal == true %}
+      - "autoheal=true"
+{% endif %}
+      - "traefik.enable=true"
+      - "traefik.http.services.readarr.loadbalancer.server.port=8787"
+      - "traefik.http.routers.readarr_web.EntryPoints=web-secure"
+      - "traefik.http.routers.readarr_web.rule={{ readarr_web_rule }}"
+#      - "traefik.http.routers.readarr_web.middlewares=chain-authelia@file"
+{% if service_cfg.external is not defined or service_cfg.external == false %}
+      - "traefik.http.routers.readarr_web.middlewares=internal-ips-only@file"
+{% endif %}
+      - "traefik.http.routers.readarr_web.service=readarr"
+      - "traefik.http.routers.readarr_web.tls=true"
+      - "traefik.http.routers.readarr_web.tls.certresolver=default"
+{% if service_cfg.watchtower is defined and service_cfg.watchtower == true %}
+      - "com.centurylinklabs.watchtower.enable=true"
+{% endif %}
+
+  transmission:
+    container_name: transmission
+    image: "ghcr.io/linuxserver/transmission:{{ service_cfg.transmission.version }}"
+    restart: unless-stopped
+    network_mode: service:vpn
+    healthcheck:
+      test: "(curl --fail http://localhost:9091 && ping -c 1 www.google.com) || exit 1"
+    depends_on:
+      vpn:
+        condition: service_healthy
+    environment:
+      PUID: "{{ PUID }}"
+      PGID: "{{ PGID }}"
+      TZ: "{{ timezone }}"
+      # TODO: use https://github.com/johman10/flood-for-transmission
+      #- TRANSMISSION_WEB_HOME=/combustion-release/ # Specify an alternative UI options are /combustion-release/, /transmission-web-control/, /kettu/ and /flood-for-transmission/
+#            - USER=username #optional
+#            - PASS=password #optional
+#            - WHITELIST=iplist #optional
+#            - PEERPORT=peerport #optional
+#            - HOST_WHITELIST=dnsnane list #optional
+    volumes:
+      - "{{ service_cfg.directory }}/transmission:/config"
+      - "{{ service_cfg.downloads_dir }}:/downloads"
+      - "{{ service_cfg.torrents_dir }}:/watch"
+    labels:
+{% if service_cfg.autoheal is defined and service_cfg.autoheal == true %}
+      - "autoheal=true"
+{% endif %}
+      - "traefik.enable=true"
+      - "traefik.http.services.transmission.loadbalancer.server.port=9091"
+      - "traefik.http.routers.transmission_web.EntryPoints=web-secure"
+      - "traefik.http.routers.transmission_web.rule={{ transmission_web_rule }}"
+#      - "traefik.http.routers.transmission_web.middlewares=chain-authelia@file"
+{% if service_cfg.external is not defined or service_cfg.external == false %}
+      - "traefik.http.routers.transmission_web.middlewares=internal-ips-only@file"
+{% endif %}
+      - "traefik.http.routers.transmission_web.service=transmission"
+      - "traefik.http.routers.transmission_web.tls=true"
+      - "traefik.http.routers.transmission_web.tls.certresolver=default"
+{% if service_cfg.watchtower is defined and service_cfg.watchtower == true %}
+      - "com.centurylinklabs.watchtower.enable=true"
+{% endif %}

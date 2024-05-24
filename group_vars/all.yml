@@ -70,3 +70,39 @@ semaphore:
   postgres_password: "IMFnjzu15kwU08oURTRveRfjZi"
   admin_password: "0NveH1cNxqRAlSDd"
   access_key_encryption: "pikL2cB9FXEA0DBQly43i184wC1aSct+/kg2fxM99wY="  # Generated with: head -c32 /dev/urandom | base64
+
+pirate:
+  directory: "{{ docker_dir }}/pirate"
+  downloads_dir: "{{ data_dir }}/downloads"
+  movies_dir: "{{ data_dir }}/movies"
+  tvseries_dir: "{{ data_dir }}/tv"
+  music_dir: "{{ data_dir }}/music"
+  audiobooks_dir: "{{ data_dir }}/books"
+  torrents_dir: "{{ data_dir }}/torrents"
+  vpn:
+    location: "ch-zrh-wg-504"
+  prowlarr:
+    domain: "pinasmarthome.fritz.box"
+    url_path_prefix: "/prowlarr"
+  radarr:
+    domain: "pinasmarthome.fritz.box"
+    url_path_prefix: "/radarr"
+  sonarr:
+    domain: "pinasmarthome.fritz.box"
+    url_path_prefix: "/sonarr"
+  lidarr:
+    domain: "pinasmarthome.fritz.box"
+    url_path_prefix: "/lidarr"
+  bazarr:
+    domain: "pinasmarthome.fritz.box"
+    url_path_prefix: "/bazarr"
+  readarr:
+    domain: "pinasmarthome.fritz.box"
+    url_path_prefix: "/readarr"
+  transmission:
+    domain: "pinasmarthome.fritz.box"
+    url_path_prefix: "/transmission"
+  traefik: true
+  external: false
+  watchtower: true
+  autoheal: true

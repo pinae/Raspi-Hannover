@@ -1,0 +1,12 @@
+- name: Build Traefik rule
+  ansible.builtin.include_role:
+    name: compose_hull
+    tasks_from: traefik_rule_builder
+  with_items:
+    - "{{ rule_builder_config }}"
+  loop_control:
+    loop_var: rule_builder_config
+
+- name: "Set the rule String for Traefik to {{ traefik_rule }}"
+  ansible.builtin.set_fact:
+    "{{ rule_builder_config.name }}": "{{ traefik_rule }}"

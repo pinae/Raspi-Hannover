@@ -1,0 +1,6 @@
+- hosts: servers
+  become: true
+  roles:
+    - role: pirate
+      vars:
+        service_cfg: "{{ pirate }}"
