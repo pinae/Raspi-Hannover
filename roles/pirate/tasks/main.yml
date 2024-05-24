@@ -20,42 +20,49 @@
         domain: "prowlarr.example.com"
         external: false
         url_path_prefix: ""
+        stripprefix: false
       radarr:
         name: radarr
         version: "latest"
         domain: "radarr.example.com"
         external: false
         url_path_prefix: ""
+        stripprefix: false
       sonarr:
         name: sonarr
         version: "latest"
         domain: "sonarr.example.com"
         external: false
         url_path_prefix: ""
+        stripprefix: false
       lidarr:
         name: lidarr
         version: "latest"
         domain: "lidarr.example.com"
         external: false
         url_path_prefix: ""
+        stripprefix: false
       bazarr:
         name: bazarr
         version: "latest"
         domain: "bazarr.example.com"
         external: false
         url_path_prefix: ""
+        stripprefix: false
       readarr:
         name: readarr
         version: "develop"
         domain: "readarr.example.com"
         external: false
         url_path_prefix: ""
+        stripprefix: false
       transmission:
         name: transmission
         version: "latest"
         domain: "transmission.example.com"
         external: false
         url_path_prefix: ""
+        stripprefix: false
       domain: "example.com"
       port: 8632
       traefik: true
@@ -102,15 +109,27 @@
   loop_control:
     loop_var: rule_builder_config
 
-- name: Generate Rule Strings for Traefik
-  ansible.builtin.set_fact:
-    prowlarr_web_rule: "Host(`{{ service_cfg.prowlarr.domain }}`){% if service_cfg.prowlarr.url_path_prefix is defined and service_cfg.prowlarr.url_path_prefix|length %} && PathPrefix(`{{ service_cfg.prowlarr.url_path_prefix }}`){% endif %}{% if service_cfg.external is not defined or service_cfg.external == false %} && (ClientIP(`192.168.0.0/16`) || ClientIP(`10.0.0.0/8`) || ClientIP(`172.16.0.0/16`) || ClientIP(`172.17.0.0/16`) || ClientIP(`172.18.0.0/16`) || ClientIP(`172.19.0.0/16`) || ClientIP(`172.20.0.0/16`) || ClientIP(`172.21.0.0/16`) || ClientIP(`172.22.0.0/16`) || ClientIP(`172.23.0.0/16`) || ClientIP(`172.24.0.0/16`) || ClientIP(`172.25.0.0/16`) || ClientIP(`172.26.0.0/16`) || ClientIP(`172.27.0.0/16`) || ClientIP(`172.28.0.0/16`) || ClientIP(`172.29.0.0/16`) || ClientIP(`172.30.0.0/16`) || ClientIP(`172.31.0.0/16`)){% endif %}"
-    radarr_web_rule: "Host(`{{ service_cfg.radarr.domain }}`){% if service_cfg.radarr.url_path_prefix is defined and service_cfg.radarr.url_path_prefix|length %} && PathPrefix(`{{ service_cfg.radarr.url_path_prefix }}`){% endif %}{% if service_cfg.external is not defined or service_cfg.external == false %} && (ClientIP(`192.168.0.0/16`) || ClientIP(`10.0.0.0/8`) || ClientIP(`172.16.0.0/16`) || ClientIP(`172.17.0.0/16`) || ClientIP(`172.18.0.0/16`) || ClientIP(`172.19.0.0/16`) || ClientIP(`172.20.0.0/16`) || ClientIP(`172.21.0.0/16`) || ClientIP(`172.22.0.0/16`) || ClientIP(`172.23.0.0/16`) || ClientIP(`172.24.0.0/16`) || ClientIP(`172.25.0.0/16`) || ClientIP(`172.26.0.0/16`) || ClientIP(`172.27.0.0/16`) || ClientIP(`172.28.0.0/16`) || ClientIP(`172.29.0.0/16`) || ClientIP(`172.30.0.0/16`) || ClientIP(`172.31.0.0/16`)){% endif %}"
-    sonarr_web_rule: "Host(`{{ service_cfg.sonarr.domain }}`){% if service_cfg.sonarr.url_path_prefix is defined and service_cfg.sonarr.url_path_prefix|length %} && PathPrefix(`{{ service_cfg.sonarr.url_path_prefix }}`){% endif %}{% if service_cfg.external is not defined or service_cfg.external == false %} && (ClientIP(`192.168.0.0/16`) || ClientIP(`10.0.0.0/8`) || ClientIP(`172.16.0.0/16`) || ClientIP(`172.17.0.0/16`) || ClientIP(`172.18.0.0/16`) || ClientIP(`172.19.0.0/16`) || ClientIP(`172.20.0.0/16`) || ClientIP(`172.21.0.0/16`) || ClientIP(`172.22.0.0/16`) || ClientIP(`172.23.0.0/16`) || ClientIP(`172.24.0.0/16`) || ClientIP(`172.25.0.0/16`) || ClientIP(`172.26.0.0/16`) || ClientIP(`172.27.0.0/16`) || ClientIP(`172.28.0.0/16`) || ClientIP(`172.29.0.0/16`) || ClientIP(`172.30.0.0/16`) || ClientIP(`172.31.0.0/16`)){% endif %}"
-    lidarr_web_rule: "Host(`{{ service_cfg.lidarr.domain }}`){% if service_cfg.lidarr.url_path_prefix is defined and service_cfg.lidarr.url_path_prefix|length %} && PathPrefix(`{{ service_cfg.lidarr.url_path_prefix }}`){% endif %}{% if service_cfg.external is not defined or service_cfg.external == false %} && (ClientIP(`192.168.0.0/16`) || ClientIP(`10.0.0.0/8`) || ClientIP(`172.16.0.0/16`) || ClientIP(`172.17.0.0/16`) || ClientIP(`172.18.0.0/16`) || ClientIP(`172.19.0.0/16`) || ClientIP(`172.20.0.0/16`) || ClientIP(`172.21.0.0/16`) || ClientIP(`172.22.0.0/16`) || ClientIP(`172.23.0.0/16`) || ClientIP(`172.24.0.0/16`) || ClientIP(`172.25.0.0/16`) || ClientIP(`172.26.0.0/16`) || ClientIP(`172.27.0.0/16`) || ClientIP(`172.28.0.0/16`) || ClientIP(`172.29.0.0/16`) || ClientIP(`172.30.0.0/16`) || ClientIP(`172.31.0.0/16`)){% endif %}"
-    bazarr_web_rule: "Host(`{{ service_cfg.bazarr.domain }}`){% if service_cfg.bazarr.url_path_prefix is defined and service_cfg.bazarr.url_path_prefix|length %} && PathPrefix(`{{ service_cfg.bazarr.url_path_prefix }}`){% endif %}{% if service_cfg.external is not defined or service_cfg.external == false %} && (ClientIP(`192.168.0.0/16`) || ClientIP(`10.0.0.0/8`) || ClientIP(`172.16.0.0/16`) || ClientIP(`172.17.0.0/16`) || ClientIP(`172.18.0.0/16`) || ClientIP(`172.19.0.0/16`) || ClientIP(`172.20.0.0/16`) || ClientIP(`172.21.0.0/16`) || ClientIP(`172.22.0.0/16`) || ClientIP(`172.23.0.0/16`) || ClientIP(`172.24.0.0/16`) || ClientIP(`172.25.0.0/16`) || ClientIP(`172.26.0.0/16`) || ClientIP(`172.27.0.0/16`) || ClientIP(`172.28.0.0/16`) || ClientIP(`172.29.0.0/16`) || ClientIP(`172.30.0.0/16`) || ClientIP(`172.31.0.0/16`)){% endif %}"
-    readarr_web_rule: "Host(`{{ service_cfg.readarr.domain }}`){% if service_cfg.readarr.url_path_prefix is defined and service_cfg.readarr.url_path_prefix|length %} && PathPrefix(`{{ service_cfg.readarr.url_path_prefix }}`){% endif %}{% if service_cfg.external is not defined or service_cfg.external == false %} && (ClientIP(`192.168.0.0/16`) || ClientIP(`10.0.0.0/8`) || ClientIP(`172.16.0.0/16`) || ClientIP(`172.17.0.0/16`) || ClientIP(`172.18.0.0/16`) || ClientIP(`172.19.0.0/16`) || ClientIP(`172.20.0.0/16`) || ClientIP(`172.21.0.0/16`) || ClientIP(`172.22.0.0/16`) || ClientIP(`172.23.0.0/16`) || ClientIP(`172.24.0.0/16`) || ClientIP(`172.25.0.0/16`) || ClientIP(`172.26.0.0/16`) || ClientIP(`172.27.0.0/16`) || ClientIP(`172.28.0.0/16`) || ClientIP(`172.29.0.0/16`) || ClientIP(`172.30.0.0/16`) || ClientIP(`172.31.0.0/16`)){% endif %}"
-    transmission_web_rule: "Host(`{{ service_cfg.transmission.domain }}`){% if service_cfg.transmission.url_path_prefix is defined and service_cfg.transmission.url_path_prefix|length %} && PathPrefix(`{{ service_cfg.transmission.url_path_prefix }}`){% endif %}{% if service_cfg.external is not defined or service_cfg.external == false %} && (ClientIP(`192.168.0.0/16`) || ClientIP(`10.0.0.0/8`) || ClientIP(`172.16.0.0/16`) || ClientIP(`172.17.0.0/16`) || ClientIP(`172.18.0.0/16`) || ClientIP(`172.19.0.0/16`) || ClientIP(`172.20.0.0/16`) || ClientIP(`172.21.0.0/16`) || ClientIP(`172.22.0.0/16`) || ClientIP(`172.23.0.0/16`) || ClientIP(`172.24.0.0/16`) || ClientIP(`172.25.0.0/16`) || ClientIP(`172.26.0.0/16`) || ClientIP(`172.27.0.0/16`) || ClientIP(`172.28.0.0/16`) || ClientIP(`172.29.0.0/16`) || ClientIP(`172.30.0.0/16`) || ClientIP(`172.31.0.0/16`)){% endif %}"
+#- name: Generate Rule Strings for Traefik
+#  ansible.builtin.set_fact:
+#    prowlarr_web_rule: "Host(`{{ service_cfg.prowlarr.domain }}`){% if service_cfg.prowlarr.url_path_prefix is defined and service_cfg.prowlarr.url_path_prefix|length %} && PathPrefix(`{{ service_cfg.prowlarr.url_path_prefix }}`){% endif %}{% if service_cfg.external is not defined or service_cfg.external == false %} && (ClientIP(`192.168.0.0/16`) || ClientIP(`10.0.0.0/8`) || ClientIP(`172.16.0.0/16`) || ClientIP(`172.17.0.0/16`) || ClientIP(`172.18.0.0/16`) || ClientIP(`172.19.0.0/16`) || ClientIP(`172.20.0.0/16`) || ClientIP(`172.21.0.0/16`) || ClientIP(`172.22.0.0/16`) || ClientIP(`172.23.0.0/16`) || ClientIP(`172.24.0.0/16`) || ClientIP(`172.25.0.0/16`) || ClientIP(`172.26.0.0/16`) || ClientIP(`172.27.0.0/16`) || ClientIP(`172.28.0.0/16`) || ClientIP(`172.29.0.0/16`) || ClientIP(`172.30.0.0/16`) || ClientIP(`172.31.0.0/16`)){% endif %}"
+#    radarr_web_rule: "Host(`{{ service_cfg.radarr.domain }}`){% if service_cfg.radarr.url_path_prefix is defined and service_cfg.radarr.url_path_prefix|length %} && PathPrefix(`{{ service_cfg.radarr.url_path_prefix }}`){% endif %}{% if service_cfg.external is not defined or service_cfg.external == false %} && (ClientIP(`192.168.0.0/16`) || ClientIP(`10.0.0.0/8`) || ClientIP(`172.16.0.0/16`) || ClientIP(`172.17.0.0/16`) || ClientIP(`172.18.0.0/16`) || ClientIP(`172.19.0.0/16`) || ClientIP(`172.20.0.0/16`) || ClientIP(`172.21.0.0/16`) || ClientIP(`172.22.0.0/16`) || ClientIP(`172.23.0.0/16`) || ClientIP(`172.24.0.0/16`) || ClientIP(`172.25.0.0/16`) || ClientIP(`172.26.0.0/16`) || ClientIP(`172.27.0.0/16`) || ClientIP(`172.28.0.0/16`) || ClientIP(`172.29.0.0/16`) || ClientIP(`172.30.0.0/16`) || ClientIP(`172.31.0.0/16`)){% endif %}"
+#    sonarr_web_rule: "Host(`{{ service_cfg.sonarr.domain }}`){% if service_cfg.sonarr.url_path_prefix is defined and service_cfg.sonarr.url_path_prefix|length %} && PathPrefix(`{{ service_cfg.sonarr.url_path_prefix }}`){% endif %}{% if service_cfg.external is not defined or service_cfg.external == false %} && (ClientIP(`192.168.0.0/16`) || ClientIP(`10.0.0.0/8`) || ClientIP(`172.16.0.0/16`) || ClientIP(`172.17.0.0/16`) || ClientIP(`172.18.0.0/16`) || ClientIP(`172.19.0.0/16`) || ClientIP(`172.20.0.0/16`) || ClientIP(`172.21.0.0/16`) || ClientIP(`172.22.0.0/16`) || ClientIP(`172.23.0.0/16`) || ClientIP(`172.24.0.0/16`) || ClientIP(`172.25.0.0/16`) || ClientIP(`172.26.0.0/16`) || ClientIP(`172.27.0.0/16`) || ClientIP(`172.28.0.0/16`) || ClientIP(`172.29.0.0/16`) || ClientIP(`172.30.0.0/16`) || ClientIP(`172.31.0.0/16`)){% endif %}"
+#    lidarr_web_rule: "Host(`{{ service_cfg.lidarr.domain }}`){% if service_cfg.lidarr.url_path_prefix is defined and service_cfg.lidarr.url_path_prefix|length %} && PathPrefix(`{{ service_cfg.lidarr.url_path_prefix }}`){% endif %}{% if service_cfg.external is not defined or service_cfg.external == false %} && (ClientIP(`192.168.0.0/16`) || ClientIP(`10.0.0.0/8`) || ClientIP(`172.16.0.0/16`) || ClientIP(`172.17.0.0/16`) || ClientIP(`172.18.0.0/16`) || ClientIP(`172.19.0.0/16`) || ClientIP(`172.20.0.0/16`) || ClientIP(`172.21.0.0/16`) || ClientIP(`172.22.0.0/16`) || ClientIP(`172.23.0.0/16`) || ClientIP(`172.24.0.0/16`) || ClientIP(`172.25.0.0/16`) || ClientIP(`172.26.0.0/16`) || ClientIP(`172.27.0.0/16`) || ClientIP(`172.28.0.0/16`) || ClientIP(`172.29.0.0/16`) || ClientIP(`172.30.0.0/16`) || ClientIP(`172.31.0.0/16`)){% endif %}"
+#    bazarr_web_rule: "Host(`{{ service_cfg.bazarr.domain }}`){% if service_cfg.bazarr.url_path_prefix is defined and service_cfg.bazarr.url_path_prefix|length %} && PathPrefix(`{{ service_cfg.bazarr.url_path_prefix }}`){% endif %}{% if service_cfg.external is not defined or service_cfg.external == false %} && (ClientIP(`192.168.0.0/16`) || ClientIP(`10.0.0.0/8`) || ClientIP(`172.16.0.0/16`) || ClientIP(`172.17.0.0/16`) || ClientIP(`172.18.0.0/16`) || ClientIP(`172.19.0.0/16`) || ClientIP(`172.20.0.0/16`) || ClientIP(`172.21.0.0/16`) || ClientIP(`172.22.0.0/16`) || ClientIP(`172.23.0.0/16`) || ClientIP(`172.24.0.0/16`) || ClientIP(`172.25.0.0/16`) || ClientIP(`172.26.0.0/16`) || ClientIP(`172.27.0.0/16`) || ClientIP(`172.28.0.0/16`) || ClientIP(`172.29.0.0/16`) || ClientIP(`172.30.0.0/16`) || ClientIP(`172.31.0.0/16`)){% endif %}"
+#    readarr_web_rule: "Host(`{{ service_cfg.readarr.domain }}`){% if service_cfg.readarr.url_path_prefix is defined and service_cfg.readarr.url_path_prefix|length %} && PathPrefix(`{{ service_cfg.readarr.url_path_prefix }}`){% endif %}{% if service_cfg.external is not defined or service_cfg.external == false %} && (ClientIP(`192.168.0.0/16`) || ClientIP(`10.0.0.0/8`) || ClientIP(`172.16.0.0/16`) || ClientIP(`172.17.0.0/16`) || ClientIP(`172.18.0.0/16`) || ClientIP(`172.19.0.0/16`) || ClientIP(`172.20.0.0/16`) || ClientIP(`172.21.0.0/16`) || ClientIP(`172.22.0.0/16`) || ClientIP(`172.23.0.0/16`) || ClientIP(`172.24.0.0/16`) || ClientIP(`172.25.0.0/16`) || ClientIP(`172.26.0.0/16`) || ClientIP(`172.27.0.0/16`) || ClientIP(`172.28.0.0/16`) || ClientIP(`172.29.0.0/16`) || ClientIP(`172.30.0.0/16`) || ClientIP(`172.31.0.0/16`)){% endif %}"
+#    transmission_web_rule: "Host(`{{ service_cfg.transmission.domain }}`){% if service_cfg.transmission.url_path_prefix is defined and service_cfg.transmission.url_path_prefix|length %} && PathPrefix(`{{ service_cfg.transmission.url_path_prefix }}`){% endif %}{% if service_cfg.external is not defined or service_cfg.external == false %} && (ClientIP(`192.168.0.0/16`) || ClientIP(`10.0.0.0/8`) || ClientIP(`172.16.0.0/16`) || ClientIP(`172.17.0.0/16`) || ClientIP(`172.18.0.0/16`) || ClientIP(`172.19.0.0/16`) || ClientIP(`172.20.0.0/16`) || ClientIP(`172.21.0.0/16`) || ClientIP(`172.22.0.0/16`) || ClientIP(`172.23.0.0/16`) || ClientIP(`172.24.0.0/16`) || ClientIP(`172.25.0.0/16`) || ClientIP(`172.26.0.0/16`) || ClientIP(`172.27.0.0/16`) || ClientIP(`172.28.0.0/16`) || ClientIP(`172.29.0.0/16`) || ClientIP(`172.30.0.0/16`) || ClientIP(`172.31.0.0/16`)){% endif %}"
+- name: Build Traefik rules
+  include_tasks: middleware_builder.yml
+  with_items:
+    - "{{ service_cfg.prowlarr }}"
+    - "{{ service_cfg.radarr }}"
+    - "{{ service_cfg.sonarr }}"
+    - "{{ service_cfg.lidarr }}"
+    - "{{ service_cfg.bazarr }}"
+    - "{{ service_cfg.readarr }}"
+    - "{{ service_cfg.transmission }}"
+  loop_control:
+    loop_var: middleware_builder_config
 
 - ansible.builtin.import_role:
     name: compose_hull
@@ -180,14 +199,6 @@
       content: text
     register: prowlarr_api_key
 
-  - name: "Retrieve remote ini file"
-    fetch:
-      src: "{{ service_cfg.directory }}/bazarr/config/config.ini"
-      dest: /tmp/ansible
-  - name: "Read and store my value"
-    set_fact:
-      bazarr_api_key: "{{ lookup( 'ini', 'apikey section=auth file=/tmp/ansible/{{ inventory_hostname }}/{{ service_cfg.directory }}/bazarr/config/config.ini' ) }}"
-
   - debug:
       msg: "Sonarr API key: {{ sonarr_api_key.matches[0]['ApiKey'] }}"
   - debug:
@@ -196,8 +207,17 @@
       msg: "Prowlarr API key: {{ prowlarr_api_key.matches[0]['ApiKey'] }}"
   - debug:
       msg: "Lidarr API key: {{ prowlarr_api_key.matches[0]['ApiKey'] }}"
-  - debug:
-      msg: "Bazarr API key: {{ bazarr_api_key }}"
+
+  #- name: "Retrieve remote ini file"
+  #  fetch:
+  #    src: "{{ service_cfg.directory }}/bazarr/config/config.yaml"
+  #    dest: /tmp/ansible
+  #- name: "Read and store my value"
+  #  set_fact:
+  #    bazarr_api_key: "{{ lookup( 'ini', 'apikey section=auth file=/tmp/ansible/{{ inventory_hostname }}/{{ service_cfg.directory }}/bazarr/config/config.yaml' ) }}"
+
+  #- debug:
+  #    msg: "Bazarr API key: {{ bazarr_api_key }}"
 
 #  - name: "Add radarr application to prowlar"
 #    uri:  # TODO actually check if radarr was registered (because 400 also indicates error)
@@ -219,14 +239,10 @@
 #        - 400  # API call fails 400 with "Should be unique" if radarr is already present
 #      body_format: json
 
-  - name: "Bazarr: activate Sonarr and Radarr and set API keys"
-    community.general.ini_file:
-      path: "{{ service_dir }}/bazarr/config/config.ini"
-      section: general
-      option: use_sonarr
-      value: True
-    with_items:
-      - {section: general, option: use_sonarr, value: True}
-      - {section: sonarr, option: apikey, value: "{{ sonarr_api_key.matches[0]['ApiKey'] }}" }
-      - {section: general, option: use_radarr, value: True}
-      - {section: radarr, option: apikey, value: "{{ radarr_api_key.matches[0]['ApiKey'] }}" }
+  #- name: "Bazarr: activate Sonarr and Radarr and set API keys"
+  #  kwoodson.yedit: "{{ item }}"
+  #  with_items:
+  #    - {key: general.use_sonarr, value: True, src: "{{ service_cfg.directory }}/bazarr/config/config.ini"}
+  #    - {key: sonarr.apikey, value: "{{ sonarr_api_key.matches[0]['ApiKey'] }}", src: "{{ service_cfg.directory }}/bazarr/config/config.ini"}
+  #    - {key: general.use_radarr, value: True, src: "{{ service_cfg.directory }}/bazarr/config/config.ini"}
+  #    - {key: radarr.apikey, value: "{{ radarr_api_key.matches[0]['ApiKey'] }}", src: "{{ service_cfg.directory }}/bazarr/config/config.ini"}

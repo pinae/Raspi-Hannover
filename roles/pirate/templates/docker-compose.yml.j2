@@ -165,30 +165,24 @@ services:
       - "{{ service_cfg.music_dir }}:/music"
     labels:
 {% if service_cfg.autoheal is defined and service_cfg.autoheal == true %}
-      - "autoheal=true"
+      autoheal: true
 {% endif %}
-      - "traefik.enable=true"
-      - "traefik.http.services.lidarr.loadbalancer.server.port=8686"
-      - "traefik.http.routers.lidarr_web.EntryPoints=web-secure"
-      - "traefik.http.routers.lidarr_web.rule={{ lidarr_web_rule }}"
+      traefik.enable: true
+      traefik.http.services.lidarr.loadbalancer.server.port: 8686
+      traefik.http.routers.lidarr_web.EntryPoints: "web-secure"
+      traefik.http.routers.lidarr_web.rule: "{{ lidarr_web_rule }}"
 #      - "traefik.http.routers.lidarr_web.middlewares=chain-authelia@file"
-{% if service_cfg.lidarr.url_path_prefix is defined and service_cfg.lidarr.url_path_prefix|length %}
-      - "traefik.http.middlewares.lidarr_stripprefix.stripprefix.prefixes={{ service_cfg.lidarr.url_path_prefix }}"
-{% if service_cfg.external is not defined or service_cfg.external == false %}
-      - "traefik.http.routers.lidarr_web.middlewares=internal-ips-only@file,lidarr_stripprefix"
-{% else %}
-      - "traefik.http.routers.lidarr_web.middlewares=lidarr_stripprefix"
+{% for lidarr_middleware_config_line in lidarr_middleware_config_lines %}
+      {{ lidarr_middleware_config_line }}
+{% endfor %}
+{% if lidarr_middleware_list | length > 0 %}
+      traefik.http.routers.{{ service_cfg.name }}_web.middlewares: "{{ lidarr_middleware_list }}"
 {% endif %}
-{% else %}
-{% if service_cfg.external is not defined or service_cfg.external == false %}
-      - "traefik.http.routers.lidarr_web.middlewares=internal-ips-only@file"
-{% endif %}
-{% endif %}
-      - "traefik.http.routers.lidarr_web.service=lidarr"
-      - "traefik.http.routers.lidarr_web.tls=true"
-      - "traefik.http.routers.lidarr_web.tls.certresolver=default"
+      traefik.http.routers.lidarr_web.service: "lidarr"
+      traefik.http.routers.lidarr_web.tls: true
+      traefik.http.routers.lidarr_web.tls.certresolver: "default"
 {% if service_cfg.watchtower is defined and service_cfg.watchtower == true %}
-      - "com.centurylinklabs.watchtower.enable=true"
+      com.centurylinklabs.watchtower.enable: true
 {% endif %}
 
   bazarr:

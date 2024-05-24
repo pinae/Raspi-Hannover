@@ -9,4 +9,4 @@
 
 - name: "Set the rule String for Traefik to {{ traefik_rule }}"
   ansible.builtin.set_fact:
-    "{{ rule_builder_config.name }}": "{{ traefik_rule }}"
+    "{{ rule_builder_config.name }}_web_rule": "{{ traefik_rule }}"
