@@ -106,3 +106,15 @@ pirate:
   external: false
   watchtower: true
   autoheal: true
+
+jellyfin:
+  name: jellyfin
+  directory: "{{ docker_dir }}/jellyfin"
+  domain: "pinasmarthome.fritz.box"
+  url_path_prefix: "/jellyfin"
+  movies_dir: "{{ data_dir }}/movies"
+  tvseries_dir: "{{ data_dir }}/tv"
+  traefik: true
+  external: false
+  watchtower: true
+  autoheal: true

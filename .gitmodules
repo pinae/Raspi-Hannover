@@ -26,3 +26,6 @@
 	path = roles/semaphore
 	url = git@github.com:pinae/telerec-t-semaphore.git
 	branch = main
+[submodule "roles/jellyfin"]
+	path = roles/jellyfin
+	url = git@github.com:pinae/telerec-t-jellyfin.git
