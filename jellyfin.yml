@@ -1,0 +1,6 @@
+- hosts: servers
+  become: true
+  roles:
+    - role: jellyfin
+      vars:
+        service_cfg: "{{ jellyfin }}"
