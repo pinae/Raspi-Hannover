@@ -1,0 +1,11 @@
+- hosts: pluto
+  become: true
+  tasks:
+    - name: "get files from dir"
+      find:
+        paths: "/docker"
+      register: found_files
+
+    - name: print file names
+      debug:
+        msg: "{{ found_files['files'] | list }}"
